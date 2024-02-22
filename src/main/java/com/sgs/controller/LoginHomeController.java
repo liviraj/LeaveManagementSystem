@@ -25,7 +25,7 @@ public class LoginHomeController extends HttpServlet {
 	private static final String homemain = "homemain.jsp";
 	private static final String login = "login.jsp";
 	private static final String home = "home.jsp";
-	private static final String viewSGS = "view_sgs.jsp";
+	private static final String VIEW_EMPLOYEE_PAGE = "ViewEmployee.jsp";
 
 	RequestDispatcher requestDispatcher = null;
 
@@ -80,7 +80,7 @@ public class LoginHomeController extends HttpServlet {
 					e.printStackTrace();
 				}
 				request.setAttribute("details", serverBeens);
-				navigation = viewSGS;
+				navigation = VIEW_EMPLOYEE_PAGE;
 			} else {
 				requestDispatcher = request.getRequestDispatcher(login);
 			}

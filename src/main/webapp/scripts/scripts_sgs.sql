@@ -22,7 +22,8 @@ CREATE TABLE `lms`.`employee` (
 
   ALTER TABLE `lms`.`employee` 
 ADD COLUMN `gender` VARCHAR(45) NULL AFTER `contactNumber`;
-
+ALTER TABLE `lms`.`employee` 
+ADD COLUMN `employeeCode` VARCHAR(45) NULL AFTER `employeeId`;
 
   CREATE TABLE `lms`.`leavedetails` (
   `leaveId` INT NOT NULL AUTO_INCREMENT,

@@ -4,12 +4,22 @@ import java.sql.Date;
 
 public class EmployeeDetailsModel {
 	private int employeeId;
+	private String employeeCode;
 	private String name;
 	private Date dob;
 	private String gender;
 	private String designation;
 	private int experiance;
 	private String contactNumber;
+	
+	
+	public String getEmployeeCode() {
+		return employeeCode;
+	}
+
+	public void setEmployeeCode(String employeeCode) {
+		this.employeeCode = employeeCode;
+	}
 
 	public int getEmployeeId() {
 		return employeeId;
@@ -69,9 +79,9 @@ public class EmployeeDetailsModel {
 
 	@Override
 	public String toString() {
-		return "EmployeeDetailsModel [employeeId=" + employeeId + ", name=" + name + ", dob=" + dob + ", gender="
-				+ gender + ", designation=" + designation + ", experiance=" + experiance + ", contactNumber="
-				+ contactNumber + "]";
+		return "EmployeeDetailsModel [employeeId=" + employeeId + ", employeeCode=" + employeeCode + ", name=" + name
+				+ ", dob=" + dob + ", gender=" + gender + ", designation=" + designation + ", experiance=" + experiance
+				+ ", contactNumber=" + contactNumber + "]";
 	}
 
 }

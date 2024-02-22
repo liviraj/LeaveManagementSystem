@@ -13,10 +13,17 @@
 h1{
 		background-color: floralwhite;
 	}
+	body {
+            background-image: url('employee.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* This ensures that the background stays fixed when scrolling */
+            margin: 0; /* Remove default margin */
+        }
 </style>
 </head>
 
-<body background="student.jpeg">
+<body>
 <center><h1>Leave Management System</h1></center>
 <div class="container">
 <div class="panel panel-success">

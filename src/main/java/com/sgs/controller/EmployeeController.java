@@ -18,7 +18,7 @@ import javax.servlet.http.HttpSession;
 import com.sgs.model.EmployeeDetailsModel;
 import com.sgs.service.EmployeeService;
 
-@WebServlet("/StudentController")
+@WebServlet("/EmployeeController")
 public class EmployeeController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final String REGISTER_EMPLOYEE_PAGE = "RegisterEmployee.jsp";
@@ -50,15 +50,15 @@ public class EmployeeController extends HttpServlet {
 		} else if (action.equals("update")) {
 			if (check != null) {
 				EmployeeService serverService = new EmployeeService();
-				EmployeeDetailsModel studentModel = new EmployeeDetailsModel();
-				int studentId = Integer.parseInt(request.getParameter("studentId"));
+				EmployeeDetailsModel model = new EmployeeDetailsModel();
+				int employeeId = Integer.parseInt(request.getParameter("employeeId"));
 				try {
-					studentModel = serverService.getById(studentId);
+					model = serverService.getById(employeeId);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
 				request.setAttribute("name", "update");
-				request.setAttribute("details", studentModel);
+				request.setAttribute("details", model);
 				navigation = REGISTER_EMPLOYEE_PAGE;
 			} else {
 				requestDispatcher = request.getRequestDispatcher(LOGIN);
@@ -67,19 +67,19 @@ public class EmployeeController extends HttpServlet {
 			String confirm = request.getParameter("confirm");
 			if (check != null) {
 				if (!"false".equals(confirm)) {
-					EmployeeService studentService = new EmployeeService();
-					int studentId = Integer.parseInt(request.getParameter("studentId"));
+					EmployeeService service = new EmployeeService();
+					int employeeId = Integer.parseInt(request.getParameter("employeeId"));
 					try {
-						int reult = studentService.deleteServer(studentId);
+						int reult = service.deleteById(employeeId);
 						if (reult == 1) {
-							ArrayList<EmployeeDetailsModel> studentList = new ArrayList<EmployeeDetailsModel>();
-							EmployeeService studentService2 = new EmployeeService();
+							ArrayList<EmployeeDetailsModel> dataList = new ArrayList<EmployeeDetailsModel>();
+							EmployeeService service2 = new EmployeeService();
 							try {
-								studentList = studentService2.getStudentList2();
+								dataList = service2.getAllList();
 							} catch (ClassNotFoundException e) {
 								e.printStackTrace();
 							}
-							request.setAttribute("details", studentList);
+							request.setAttribute("details", dataList);
 							navigation = VIEW_EMPLOYEE_PAGE;
 						}
 					} catch (ClassNotFoundException e) {
@@ -100,14 +100,14 @@ public class EmployeeController extends HttpServlet {
 			}
 		} else {
 			if (check != null) {
-				ArrayList<EmployeeDetailsModel> studentList = new ArrayList<EmployeeDetailsModel>();
-				EmployeeService studentService = new EmployeeService();
+				ArrayList<EmployeeDetailsModel> dataList = new ArrayList<EmployeeDetailsModel>();
+				EmployeeService service = new EmployeeService();
 				try {
-					studentList = studentService.getAllList();
+					dataList = service.getAllList();
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
-				request.setAttribute("details", studentList);
+				request.setAttribute("details", dataList);
 				navigation = VIEW_EMPLOYEE_PAGE;
 			} else {
 				requestDispatcher = request.getRequestDispatcher(LOGIN);
@@ -126,11 +126,11 @@ public class EmployeeController extends HttpServlet {
 		ArrayList<EmployeeDetailsModel> arrayList = new ArrayList<EmployeeDetailsModel>();
 		if (action.equals("save")) {
 			if (check != null) {
-				EmployeeDetailsModel studentModel = new EmployeeDetailsModel();
-				EmployeeService studentService = new EmployeeService();
-				String rollNo = request.getParameter("rollNo");
-				String serverName = request.getParameter("name");
-				
+				EmployeeDetailsModel model = new EmployeeDetailsModel();
+				EmployeeService service = new EmployeeService();
+				String employeeCode = request.getParameter("employeeCode");
+				String employeeName = request.getParameter("name");
+
 				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 				java.util.Date dobReq = null;
 				try {
@@ -140,41 +140,40 @@ public class EmployeeController extends HttpServlet {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				Date dobSql = new Date(dobReq.getTime());
-				
+				Date dobDate = new Date(dobReq.getTime());
+
+				String designation = request.getParameter("designation");
 				String gender = request.getParameter("gender");
-				String fatherName = request.getParameter("fatherName");
 
+				int experiance = Integer.parseInt(request.getParameter("experiance"));
+				String contactNumber = request.getParameter("contactNumber");
 
-				int semester = Integer.parseInt(request.getParameter("semester"));
-				String department = request.getParameter("department");
+				model.setEmployeeCode(employeeCode);
+				model.setDob(dobDate);
+				model.setName(employeeName);
+				model.setGender(gender);
+				model.setDesignation(designation);
+				model.setExperiance(experiance);
+				model.setContactNumber(contactNumber);
 
-				studentModel.setName(serverName);
-				studentModel.setGender(gender);
-				studentModel.setFatherName(fatherName);
-				studentModel.setDob(dobSql);
-				studentModel.setSemester(semester);
-				studentModel.setDepartment(department);
-				studentModel.setRollNo(rollNo);
-
-				String result = studentService.rollNoCheck(rollNo);
-				arrayList.add(studentModel);
+				String result = service.check(employeeCode);
+				arrayList.add(model);
 				if (result.equals("success")) {
 					request.setAttribute("name", "save");
-					request.setAttribute("msg", "Roll No Already Exist");
-					request.setAttribute("details", studentModel);
+					request.setAttribute("msg", "Employee Code Already Exist");
+					request.setAttribute("details", model);
 					requestDispatcher = request.getRequestDispatcher(REGISTER_EMPLOYEE_PAGE);
 				} else {
-					int status = studentService.insertDetails(studentModel);
+					int status = service.insertDetails(model);
 					if (status > 0) {
-						ArrayList<EmployeeDetailsModel> studentList = new ArrayList<EmployeeDetailsModel>();
-						EmployeeService employeService2 = new EmployeeService();
+						ArrayList<EmployeeDetailsModel> dataList = new ArrayList<EmployeeDetailsModel>();
+						EmployeeService service2 = new EmployeeService();
 						try {
-							studentList = employeService2.getStudentList2();
+							dataList = service2.getAllList();
 						} catch (ClassNotFoundException e) {
 							e.printStackTrace();
 						}
-						request.setAttribute("details", studentList);
+						request.setAttribute("details", dataList);
 						requestDispatcher = request.getRequestDispatcher(VIEW_EMPLOYEE_PAGE);
 					}
 				}
@@ -183,14 +182,14 @@ public class EmployeeController extends HttpServlet {
 			}
 		} else if (action.equals("Cancel")) {
 			if (check != null) {
-				ArrayList<EmployeeDetailsModel> studentModel = new ArrayList<EmployeeDetailsModel>();
-				EmployeeService studentService = new EmployeeService();
+				ArrayList<EmployeeDetailsModel> model = new ArrayList<EmployeeDetailsModel>();
+				EmployeeService service = new EmployeeService();
 				try {
-					studentModel = studentService.getAllList();
+					model = service.getAllList();
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
-				request.setAttribute("details", studentModel);
+				request.setAttribute("details", model);
 				// navigation=viewemp;
 				requestDispatcher = request.getRequestDispatcher(VIEW_EMPLOYEE_PAGE);
 			} else {
@@ -198,14 +197,14 @@ public class EmployeeController extends HttpServlet {
 			}
 		} else {
 			if (check != null) {
-				EmployeeDetailsModel studentModel = new EmployeeDetailsModel();
-				EmployeeService studentService = new EmployeeService();
-				ArrayList<EmployeeDetailsModel> studentList = new ArrayList<EmployeeDetailsModel>();
-				
-				int id = Integer.parseInt(request.getParameter("studentId"));
-				String rollNo = request.getParameter("rollNo");
-				String serverName = request.getParameter("name");
-				
+				EmployeeDetailsModel model = new EmployeeDetailsModel();
+				EmployeeService service = new EmployeeService();
+				ArrayList<EmployeeDetailsModel> dataList = new ArrayList<EmployeeDetailsModel>();
+
+				int id = Integer.parseInt(request.getParameter("employeeId"));
+				String employeeCode = request.getParameter("employeeCode");
+				String employeeName = request.getParameter("name");
+
 				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 				java.util.Date dobReq = null;
 				try {
@@ -215,34 +214,33 @@ public class EmployeeController extends HttpServlet {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				Date dobSql = new Date(dobReq.getTime());
-				
+				Date dobDate = new Date(dobReq.getTime());
+
+				String designation = request.getParameter("designation");
 				String gender = request.getParameter("gender");
-				String fatherName = request.getParameter("fatherName");
 
+				int experiance = Integer.parseInt(request.getParameter("experiance"));
+				String contactNumber = request.getParameter("contactNumber");
 
-				int semester = Integer.parseInt(request.getParameter("semester"));
-				String department = request.getParameter("department");
-				
-				studentModel.setStudentId(id);
-				studentModel.setName(serverName);
-				studentModel.setGender(gender);
-				studentModel.setFatherName(fatherName);
-				studentModel.setDob(dobSql);
-				studentModel.setSemester(semester);
-				studentModel.setDepartment(department);
-				studentModel.setRollNo(rollNo);
+				model.setEmployeeCode(employeeCode);
+				model.setDob(dobDate);
+				model.setName(employeeName);
+				model.setGender(gender);
+				model.setDesignation(designation);
+				model.setExperiance(experiance);
+				model.setContactNumber(contactNumber);
+				model.setEmployeeId(id);
 				try {
-					int status = studentService.updateServer(studentModel);
+					int status = service.update(model);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
 				try {
-					studentList = studentService.getStudentList2();
+					dataList = service.getAllList();
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
-				request.setAttribute("details", studentList);
+				request.setAttribute("details", dataList);
 				request.setAttribute("msg", "record updated successfully");
 				requestDispatcher = request.getRequestDispatcher(VIEW_EMPLOYEE_PAGE);
 			} else {

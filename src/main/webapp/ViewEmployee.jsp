@@ -20,58 +20,60 @@ h1{
 		var c=confirm("Are You Sure");
 		if(c==true)
 			{
-				location.href="StudentController?action=delete&studentId="+idValue; 
+				location.href="EmployeeController?action=delete&employeeId="+idValue; 
 			}/* else{
 				location.reload();
 			} */
 		
 	}
 	
-	function addMarks(id){
+	function applyLeave(id){
 		var idValue = id;	
-		location.href="StudentMarkController?action=addMark&studentId="+idValue; 
+		location.href="LeaveController?action=applyLeave&employeeId="+idValue; 
 	}
 	
-	function viewMarks(id){
+	function leaveHistory(id){
 		var idValue = id;	
-		location.href="StudentMarkController?action=viewMark&studentId="+idValue; 
+		location.href="LeaveController?action=leaveHistory&employeeId="+idValue; 
 	}
 </script>
 </head>
 <body>
 <div class="container">
-<center><h1>Student Grading System</h1></center>
+<center><h1>Leave Management System</h1></center>
 	
-	<center><p><font size="5">Student Information</font></p></center>
+	<center><p><font size="5">Employee Information</font></p></center>
 	<center><span style="color: red">${msg} </span></center>
 	<form action="LogoutController">
 				<input type="submit" name="submit" value="logout" style="position:relative; left: 1000px" class="btn btn-danger">
 	</form>
 	<input type="hidden" name="confirm" id="confirm" value=""></input>
-	<center><table border="3" class="table">
-		<tr class="danger">
-		<th>Roll No</th>
+	<center><table border="3" class="table table-striped">
+	<thead class="thead-dark">
+		<tr class="warning">
+		<th>Employee Code</th>
 		<th>Name</th>
 		<th>Date Of Birth</th>
 		<th>Gender</th>
-		<th>Father Name</th>
-		<th>Semester</th>
-		<th>Department</th>
-		<th colspan="1"><a href="StudentController?action=add">Add New</a></th>
+		<th>Designation</th>
+		<th>Experience</th>
+		<th>Contact Number</th>
+		<th colspan="1"><a href="EmployeeController?action=add">Add New</a></th>
 		</tr>
+		</thead>
 			<c:forEach items="${details}" var="detail">
 			<tr>
-				<td><c:out value="${detail.rollNo}"></c:out></td>
+				<td><c:out value="${detail.employeeCode}"></c:out></td>
 				<td><c:out value="${detail.name}"></c:out></td>
 				<td><c:out value="${detail.dob}"></c:out></td>
 				<td><c:out value="${detail.gender}"></c:out></td>
-				<td><c:out value="${detail.fatherName}"></c:out></td>
-				<td><c:out value="${detail.semester}"></c:out></td>
-				<td><c:out value="${detail.department}"></c:out></td>
-				<td><a href="StudentController?action=update&studentId=<c:out value="${detail.studentId}"/>"><button>Update</button></a>
-			 <a><button onclick="msg1(${detail.studentId})">Delete</button></a>
-			 <a><button onclick="addMarks(${detail.studentId})">Add Marks</button></a>
-			 <a><button onclick="viewMarks(${detail.studentId})">View Marks</button></a></td> 
+				<td><c:out value="${detail.designation}"></c:out></td>
+				<td><c:out value="${detail.experiance}"></c:out></td>
+				<td><c:out value="${detail.contactNumber}"></c:out></td>
+				<td><a href="EmployeeController?action=update&employeeId=<c:out value="${detail.employeeId}"/>"><button>Update</button></a>
+			 <a><button onclick="msg1(${detail.employeeId})">Delete</button></a>
+			 <a><button onclick="applyLeave(${detail.employeeId})">Apply Leave</button></a>
+			 <a><button onclick="leaveHistory(${detail.employeeId})">Leave History</button></a></td> 
 			</tr>
 			</c:forEach>
 			</table></center></div>

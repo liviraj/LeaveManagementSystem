@@ -29,8 +29,9 @@ public class EmployeeService {
 				model.setGender(rs.getString("gender"));
 				model.setDob(rs.getDate("dob"));
 				model.setDesignation(rs.getString("designation"));
-				model.setEmployeeId(rs.getInt("experiance"));
+				model.setExperiance(rs.getInt("experiance"));
 				model.setContactNumber(rs.getString("contactNumber"));
+				model.setEmployeeCode(rs.getString("employeeCode"));
 
 				studentList.add(model);
 			}
@@ -53,8 +54,9 @@ public class EmployeeService {
 				model.setGender(rs.getString("gender"));
 				model.setDob(rs.getDate("dob"));
 				model.setDesignation(rs.getString("designation"));
-				model.setEmployeeId(rs.getInt("experiance"));
+				model.setExperiance(rs.getInt("experiance"));
 				model.setContactNumber(rs.getString("contactNumber"));
+				model.setEmployeeCode(rs.getString("employeeCode"));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -62,9 +64,9 @@ public class EmployeeService {
 		return model;
 	}
 
-	public int deleteServer(int id) throws ClassNotFoundException, SQLException {
+	public int deleteById(int id) throws ClassNotFoundException, SQLException {
 		int status = 0;
-		String query = "delete from employee where employee=" + id + "";
+		String query = "delete from employee where employeeId=" + id + "";
 		con = DbConnection.getConnection();
 		PreparedStatement ps = (PreparedStatement) con.prepareStatement(query);
 		status = ps.executeUpdate();
@@ -76,13 +78,14 @@ public class EmployeeService {
 		try {
 			con = DbConnection.getConnection();
 			PreparedStatement ps = (PreparedStatement) con.prepareStatement(
-					"insert into employee(name,dob,designation,experiance,contactNumber,gender) values(?,?,?,?,?,?)");
-			ps.setString(1, model.getName());
-			ps.setDate(2, model.getDob());
-			ps.setString(3, model.getDesignation());
-			ps.setInt(4, model.getExperiance());
-			ps.setString(5, model.getContactNumber());
-			ps.setString(6, model.getGender());
+					"insert into employee(employeeCode,name,dob,designation,experiance,contactNumber,gender) values(?,?,?,?,?,?,?)");
+			ps.setString(1, model.getEmployeeCode());
+			ps.setString(2, model.getName());
+			ps.setDate(3, model.getDob());
+			ps.setString(4, model.getDesignation());
+			ps.setInt(5, model.getExperiance());
+			ps.setString(6, model.getContactNumber());
+			ps.setString(7, model.getGender());
 
 			status = ps.executeUpdate();
 		} catch (Exception e) {
@@ -91,20 +94,21 @@ public class EmployeeService {
 		return status;
 	}
 
-	public int updateServer(EmployeeDetailsModel studentModel) throws ClassNotFoundException {
+	public int update(EmployeeDetailsModel model) throws ClassNotFoundException {
 		int status = 0;
 		try {
 			con = DbConnection.getConnection();
 			PreparedStatement ps = (PreparedStatement) con.prepareStatement(
-					"update studentdetails set rollNo=?,name=?,dob=?,gender=?,fatherName=?,semester=?, department=?  where studentId='"
-							+ studentModel.getStudentId() + "'");
-			ps.setString(1, studentModel.getRollNo());
-			ps.setString(2, studentModel.getName());
-			ps.setDate(3, studentModel.getDob());
-			ps.setString(4, studentModel.getGender());
-			ps.setString(5, studentModel.getFatherName());
-			ps.setInt(6, studentModel.getSemester());
-			ps.setString(7, studentModel.getDepartment());
+					"update employee set employeeCode=?,name=?,dob=?,designation=?,experiance=?,contactNumber=?,gender=?  where employeeId='"
+							+ model.getEmployeeId() + "'");
+			ps.setString(1, model.getEmployeeCode());
+			ps.setString(2, model.getName());
+			ps.setDate(3, model.getDob());
+			ps.setString(4, model.getDesignation());
+			ps.setInt(5, model.getExperiance());
+			ps.setString(6, model.getContactNumber());
+			ps.setString(7, model.getGender());
+			
 			status = ps.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -112,14 +116,14 @@ public class EmployeeService {
 		return status;
 	}
 
-	public String rollNoCheck(String rollNo) {
+	public String check(String employeeCode) {
 		Connection con = null;
 		Statement st = null;
 		ResultSet rs = null;
 		try {
 			con = DbConnection.getConnection();
 			st = (Statement) con.createStatement();
-			rs = st.executeQuery("select rollNo from studentdetails where  rollNo = '" + rollNo + "'");
+			rs = st.executeQuery("select employeeCode from employee where  employeeCode = '" + employeeCode + "'");
 			if (rs.next()) {
 				return "success";
 			}

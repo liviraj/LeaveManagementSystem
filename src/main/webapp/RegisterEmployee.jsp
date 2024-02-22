@@ -22,13 +22,11 @@ h1 {
 		$(document).ready(function() {
 			$('#sel1').val("---select---");
 			$('#sel2').val("---select---");
-			$('#sel3').val("---select---");
 		});
 	} else {
 		$(document).ready(function() {
 			$('#sel1').val('${details.gender}');
-			$('#sel2').val('${details.department}');
-			$('#sel3').val('${details.semester}');
+			$('#sel2').val('${details.designation}');
 		});
 	}
 </script>
@@ -40,11 +38,19 @@ h1 {
 			<h1>Employee Management System</h1>
 		</center>
 		<div class="container">
-			<input type="hidden" name="studentId" value="${details.employeeId}">
+			<input type="hidden" name="employeeId" value="${details.employeeId}">
 			<h2>Employee Registration</h2>
 
 			<div class="col-xs-4">
 				<div>
+				<label>Employee Code<span style="color: red">*</span></label><br>
+					<span style="color: red">${msg}</span>
+					<div id="errname">
+						<span style="color: red" id="sname"></span>
+					</div>
+					<input id="employeeCode" class="form-control" type="text" name="employeeCode"
+						value="${details.employeeCode}" placeholder="Enter employee code"> <br>
+						
 					<label>Employee Name<span style="color: red">*</span></label><br>
 					<span style="color: red">${msg}</span>
 					<div id="errname">
@@ -74,13 +80,13 @@ h1 {
 						</select>
 					</div>
 
-					<br> <label>Designation<span style="color: red">*</span></label>
+					 <label>Designation<span style="color: red">*</span></label>
 					<div class="form-group">
 						<div id="errteam">
 							<span style="color: red" id="steam"></span>
 						</div>
-						<select class="form-control" name="designation" id="sel1"
-							value="${details.gender}">
+						<select class="form-control" name="designation" id="sel2"
+							value="${details.designation}">
 							<option value="" hidden>---select---</option>
 							<option value="Software Developer">Software Developer</option>
 							<option value="Web Developer">Web Developer</option>
@@ -108,7 +114,7 @@ h1 {
 						</select>
 					</div>
 
-					<br> <label>Experiance<span style="color: red">*</span></label><br>
+					 <label>Experiance<span style="color: red">*</span></label><br>
 					<span style="color: red">${msg}</span> <input id="experiance"
 						class="form-control" type="text" name="experiance"
 						value="${details.experiance}" placeholder="Enter experiance">
@@ -123,10 +129,10 @@ h1 {
 						placeholder="Enter contact number"> 
 					<br>
 					<div class="col-xs-2">
-						<input class="btn btn-outline-primary" type="submit" name="submit"
+						<input class="btn btn-primary" type="submit" name="submit"
 							value="${name}"></input>
 					</div>
-					<button class="btn btn-outline-danger" style="position: relative; left: 50px"
+					<button class="btn btn-danger" style="position: relative; left: 50px"
 						type="submit" value="Cancel" name="submit">Cancel</button>
 				</div>
 			</div>

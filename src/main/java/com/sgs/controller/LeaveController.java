@@ -2,7 +2,6 @@ package com.sgs.controller;
 
 import java.io.IOException;
 import java.sql.Date;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,28 +17,27 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.sgs.model.EmployeeDetailsModel;
 import com.sgs.model.LeaveDetailsModel;
-import com.sgs.model.MarkViewModel;
-import com.sgs.model.StudentDetailsModel;
-import com.sgs.model.SubjectDetails;
-import com.sgs.service.LeaveService;
+import com.sgs.model.LeaveHistoryModel;
 import com.sgs.service.EmployeeService;
+import com.sgs.service.LeaveService;
 
-@WebServlet("/StudentMarkController")
+@WebServlet("/LeaveController")
 public class LeaveController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static final String addMarksPage = "AddMarks.jsp";
-	private static final String vieMarksPage = "ViewMarks.jsp";
-	private static final String viewStudent = "view_sgs.jsp";
+	private static final String APPLY_LEAVE_PAGE = "ApplyLeave.jsp";
+	private static final String LEAVE_HISTORY_PAGE = "LeaveHistory.jsp";
+	private static final String VIEW_EMPLOYEE_PAGE = "ViewEmployee.jsp";
 
 	RequestDispatcher requestDispatcher = null;
-	private EmployeeService studentService;
-	private LeaveService marksService;
+	private EmployeeService empService;
+	private LeaveService leaveService;
 
 	public LeaveController() {
 		super();
-		this.studentService = new EmployeeService();
-		this.marksService = new LeaveService();
+		this.empService = new EmployeeService();
+		this.leaveService = new LeaveService();
 	}
 
 	@Override
@@ -49,46 +47,45 @@ public class LeaveController extends HttpServlet {
 		HttpSession session = request.getSession();
 		String check = (String) session.getAttribute("username");
 		String action = request.getParameter("action");
-		String navigation = vieMarksPage;
+		String navigation = LEAVE_HISTORY_PAGE;
 
-		if (action.equals("addMark")) {
-			int studentId = Integer.parseInt(request.getParameter("studentId"));
+		if (action.equals("applyLeave")) {
+			int employeeId = Integer.parseInt(request.getParameter("employeeId"));
 			try {
-				StudentDetailsModel student = studentService.getById(studentId);
-				ArrayList<SubjectDetails> subjectDetails = marksService.getSubjectByDepartment(student.getDepartment());
-				Map<Integer, List<SubjectDetails>> subjectsBySemester = subjectDetails.stream()
-						.collect(Collectors.groupingBy(SubjectDetails::getSemesterId));
-
-				request.setAttribute("student", student);
-				request.setAttribute("subjectDetails", subjectsBySemester);
-				navigation = addMarksPage;
+				EmployeeDetailsModel employee = empService.getById(employeeId);
+				request.setAttribute("employee", employee);
+				navigation = APPLY_LEAVE_PAGE;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} else if (action.equals("viewMark")) {
-			int studentId = Integer.parseInt(request.getParameter("studentId"));
-			List<MarkViewModel> studentMarks = marksService.findMarksByStudentId(studentId);
-
-			int sumOfMarks = studentMarks.stream().mapToInt(MarkViewModel::getMark).sum();
-			float percentage = sumOfMarks/studentMarks.size();
-			float cgpa = (float) (percentage/ 9.5);
-			String formattedCgpa = String.format("%.2f", cgpa);
-			
-			navigation = vieMarksPage;
-			request.setAttribute("percentage", percentage);
-			request.setAttribute("cgpa", formattedCgpa);
-			request.setAttribute("marks", studentMarks);
+		} else if (action.equals("leaveHistory")) {
+			int employeeId = Integer.parseInt(request.getParameter("employeeId"));
+			List<LeaveHistoryModel> dataList = leaveService.findLeaveHistoryById(employeeId);
+			navigation = LEAVE_HISTORY_PAGE;
+			request.setAttribute("leaveList", dataList);
 
 		} else if (action.equals("cancel")) {
-			ArrayList<StudentDetailsModel> studentModel = new ArrayList<StudentDetailsModel>();
+			ArrayList<EmployeeDetailsModel> dataList = new ArrayList<EmployeeDetailsModel>();
 			EmployeeService studentService = new EmployeeService();
 			try {
-				studentModel = studentService.getAllList();
+				dataList = studentService.getAllList();
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
-			request.setAttribute("details", studentModel);
-			navigation = viewStudent;
+			request.setAttribute("details", dataList);
+			navigation = VIEW_EMPLOYEE_PAGE;
+		} else if (action.equals("leaveAction")) {
+			int leaveId = Integer.parseInt(request.getParameter("leaveId"));
+			String leaveType = request.getParameter("type");
+			
+			int status = leaveService.updateLeaveType(leaveId, leaveType);
+			
+			int employeeId = Integer.parseInt(request.getParameter("employeeId"));
+			List<LeaveHistoryModel> dataList = leaveService.findLeaveHistoryById(employeeId);
+			navigation = LEAVE_HISTORY_PAGE;
+			
+			request.setAttribute("msg", "Leave action done");
+			request.setAttribute("leaveList", dataList);
 		}
 
 		requestDispatcher = request.getRequestDispatcher(navigation);
@@ -101,46 +98,60 @@ public class LeaveController extends HttpServlet {
 		HttpSession session = request.getSession();
 		String check = (String) session.getAttribute("username");
 		String action = request.getParameter("submit");
-		String navigation = vieMarksPage;
+		String navigation = LEAVE_HISTORY_PAGE;
 
 		if (action.equals("cancel")) {
-			ArrayList<StudentDetailsModel> studentModel = new ArrayList<StudentDetailsModel>();
-			EmployeeService studentService = new EmployeeService();
+			ArrayList<EmployeeDetailsModel> model = new ArrayList<EmployeeDetailsModel>();
+			EmployeeService service = new EmployeeService();
 			try {
-				studentModel = studentService.getAllList();
+				model = service.getAllList();
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
-			request.setAttribute("details", studentModel);
-			navigation = viewStudent;
-		} else if (action.equals("submit")) {
-			String[] subjectInfoArray = request.getParameterValues("subjectInfo");
-
-			List<LeaveDetailsModel> markDetails = new ArrayList<LeaveDetailsModel>();
-			for (String subject : subjectInfoArray) {
-				LeaveDetailsModel mark = new LeaveDetailsModel();
-				String[] markSplit = subject.split(",");
-
-				mark.setMark(Integer.parseInt(markSplit[6]));
-				mark.setDepartment(markSplit[5]);
-				mark.setSemesterId(Integer.parseInt(markSplit[1]));
-				mark.setStudentId(Integer.parseInt(markSplit[4]));
-				mark.setSubjectId(Integer.parseInt(markSplit[0]));
-
-				markDetails.add(mark);
-			}
-			int result = marksService.saveMarkDetails(markDetails);
-			if (result == 1) {
-				navigation = viewStudent;
-			}
-			ArrayList<StudentDetailsModel> studentList = null;
+			request.setAttribute("details", model);
+			navigation = VIEW_EMPLOYEE_PAGE;
+		} else if (action.equals("Submit")) {
+			int employeeId = Integer.parseInt(request.getParameter("employeeId"));
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			java.util.Date dobLeaveFromReq = null;
+			java.util.Date dobLeaveToReq = null;
 			try {
-				studentList = studentService.getAllList();
+				String reqLaveFromDate = request.getParameter("leaveFrom");
+				String reqLaveToDate = request.getParameter("leaveTo");
+				
+				dobLeaveFromReq = dateFormat.parse(reqLaveFromDate);
+				dobLeaveToReq = dateFormat.parse(reqLaveToDate);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			Date leaveFromDate = new Date(dobLeaveFromReq.getTime());
+			Date leaveToDate = new Date(dobLeaveToReq.getTime());
+			
+			String leaveType = request.getParameter("leaveType");
+			String leaveStatus = request.getParameter("leaveStatus");
+			String reason = request.getParameter("reason");
+			
+			LeaveDetailsModel leaveDetails = new LeaveDetailsModel();
+			leaveDetails.setLeaveFrom(leaveFromDate);
+			leaveDetails.setLeaveTo(leaveToDate);
+			leaveDetails.setLeaveType(leaveType);
+			leaveDetails.setLeaveStatus(leaveStatus);
+			leaveDetails.setReason(reason);
+			leaveDetails.setEmployeeId(employeeId);
+
+			int result = leaveService.saveLeaveDetails(leaveDetails);
+			if (result == 1) {
+				navigation = VIEW_EMPLOYEE_PAGE;
+			}
+			ArrayList<EmployeeDetailsModel> dataList = null;
+			try {
+				dataList = empService.getAllList();
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			request.setAttribute("details", studentList);
+			request.setAttribute("details", dataList);
 			request.setAttribute("msg", "record saved successfully");
 		}
 
